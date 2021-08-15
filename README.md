@@ -1,1 +1,1 @@
-# purescript-typelevel-arithmetic
+# purescript-typelevel-arithmetic 🧮
