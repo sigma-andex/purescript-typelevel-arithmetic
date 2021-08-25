@@ -6,6 +6,7 @@ import Data.Tuple (Tuple(..), snd)
 import Prim.Symbol (class Cons)
 import Type.Proxy (Proxy(..))
 
+-- | Class for internal use only. See `ToInt` instead.
 class ToIntSingle (sym ∷ Symbol) where
   toIntSingle ∷ Proxy sym → Int
 
@@ -49,6 +50,7 @@ else instance
       in
         Tuple newExp newResult
 
+-- | Typeclass for converting a typelevel integer represented as a symbol to a value-level integer.
 class ToInt (sym ∷ Symbol) where
   -- | Converts a `Symbol` representing an Int to an Int 
   -- | 

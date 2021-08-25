@@ -3,6 +3,8 @@ module Typelevel.Arithmetic.Add where
 import Prim.Symbol (class Cons)
 import Type.Proxy (Proxy(..))
 
+-- | Class for internal use only. See `Add` instead. 
+-- | Typeclass for adding two single digits. 
 class AddSingle (augend ∷ Symbol) (addend ∷ Symbol) (carryPrevious ∷ Symbol) (carryNext ∷ Symbol) (sum ∷ Symbol) | augend addend carryPrevious → carryNext sum
 , augend carryPrevious sum → addend carryNext
 , addend carryPrevious sum → augend carryNext
@@ -208,6 +210,23 @@ else instance AddSingle "7" "9" "1" "1" "7"
 else instance AddSingle "8" "9" "1" "1" "8"
 else instance AddSingle "9" "9" "1" "1" "9"
 
+-- | Typeclass for adding two typelevel numbers represented as symbols 
+-- | **Note**: Currently, the terms have to be equal length. 
+-- |           Use the `PadZeroes` typeclass to align the terms. 
+-- |           Use `Trim` to remove any excessive zeroes after the calculation.
+-- | 
+-- | Example usage:
+-- | ```purescript 
+-- | add ∷
+-- |   ∀ augend addend sum carry result.
+-- |   Add augend addend carry sum ⇒
+-- |   Cons carry sum result ⇒
+-- |   Proxy augend → Proxy addend → Proxy result
+-- | add _ _ = Proxy
+-- | 
+-- | result ∷ Proxy "0579"
+-- | result = add (term ∷ _ "123") (term ∷ _ "456")
+-- | ```
 class Add (augend ∷ Symbol) (addend ∷ Symbol) (carry ∷ Symbol) (sum ∷ Symbol) | augend addend → carry sum
 , augend sum → addend carry
 , addend sum → augend carry
@@ -220,6 +239,8 @@ else instance
   , AddSingle augendHead addendHead carryPrevious carry sumHead
   ) ⇒
   Add augend addend carry sum
+
+-- | Typeclass for internal use only. See `PadZeroes` instead.
 class PadZeroesHelper (leftIn ∷ Symbol) (rightIn ∷ Symbol) (leftTemp ∷ Symbol) (rightTemp ∷ Symbol) (leftOut ∷ Symbol) (rightOut ∷ Symbol) | leftIn rightIn leftTemp rightTemp → leftOut rightOut
 
 instance PadZeroesHelper leftIn rightIn "" "" leftIn rightIn
@@ -242,18 +263,36 @@ else instance
   ) ⇒
   PadZeroesHelper leftIn rightIn leftTemp rightTemp leftOut rightOut
 
+-- | Typeclass to align two symbols by padding the shorter one with zeroes.
 class PadZeroes (leftIn ∷ Symbol) (rightIn ∷ Symbol) (leftOut ∷ Symbol) (rightOut ∷ Symbol) | leftIn rightIn → leftOut rightOut
 instance (PadZeroesHelper leftIn rightIn leftIn rightIn leftOut rightOut) ⇒ PadZeroes leftIn rightIn leftOut rightOut
 
+-- | Typeclass for internal use only. See `Trim` instead.
 class TrimHelper (inHead ∷ Symbol) (inTail ∷ Symbol) (out ∷ Symbol) | inHead inTail → out
 
 instance TrimHelper "0" "" "0"
 else instance (Cons inTailHead inTailTail inTail, TrimHelper inTailHead inTailTail out) ⇒ TrimHelper "0" inTail out
 else instance (Cons inHead inTail out) ⇒ TrimHelper inHead inTail out
 
+-- | Typeclass to trim a symbol by removing any excess zeroes.
 class Trim (input ∷ Symbol) (output ∷ Symbol) | input → output
 instance Trim "" ""
 else instance (Cons inHead inTail input, TrimHelper inHead inTail output) ⇒ Trim input output
 
+-- | Just an alias for `Proxy` to make it a bit nicer to read:
+-- | 
+-- | ```purescript 
+-- | term :: _ "123"
+-- | ```
+-- | 
+-- | instead of
+-- | 
+-- | ```purescript 
+-- | Proxy :: Proxy "123"
+-- | ```
 term ∷ ∀ t. Proxy t
 term = Proxy
+
+type Term :: forall k. k -> Type
+type Term sym
+  = Proxy sym
