@@ -1,5 +1,7 @@
 # purescript-typelevel-arithmetic 🧮
 
+**DEPRECATED**: Purescript v0.15.0 now provides typelevel integers with compiler solved typeclasses, so there is no need anymore to use symbol-based arithmetic.
+
 Arithmetic at the typelevel using symbols. 
 
 ```purescript 
